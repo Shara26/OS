@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+sem_t r, w;
+int read_count = 0;
+
+void *writer(void *arg) {
+    int id = *((int *)arg);
+    sleep(1);
+    sem_wait(&w);
+    printf("\nWriter %d performing the writing operation.", id);
+    sem_post(&w);
+    return NULL;
+}
+
+void *reader(void *arg) {
+    int id = *((int *)arg);
+    sleep(1);
+
+    sem_wait(&r);
+    read_count++;
+    if (read_count == 1)
+        sem_wait(&w);
+    sem_post(&r);
+
+    printf("\nReader %d performing the reading operation.", id);
+
+    sem_wait(&r);
+    read_count--;
+    if (read_count == 0)
+        sem_post(&w);
+    sem_post(&r);
+
+    return NULL;
+}
+
+int main() {
+    pthread_t R[8], W[5];
+    int r_ids[8], w_ids[5];
+
+    sem_init(&w, 0, 1);
+    sem_init(&r, 0, 1);
+
+    // Create writer threads
+    for (int j = 0; j < 5; j++) {
+        w_ids[j] = j + 1;
+        pthread_create(&W[j], NULL, writer, &w_ids[j]);
+    }
+
+    // Create reader threads
+    for (int i = 0; i < 8; i++) {
+        r_ids[i] = i + 1;
+        pthread_create(&R[i], NULL, reader, &r_ids[i]);
+    }
+
+    // Wait for all readers to finish
+    for (int i = 0; i < 8; i++) {
+        pthread_join(R[i], NULL);
+    }
+
+    // Wait for all writers to finish
+    for (int j = 0; j < 5; j++) {
+        pthread_join(W[j], NULL);
+    }
+
+    sem_destroy(&r);
+    sem_destroy(&w);
+
+    printf("\nAll readers and writers have finished.\n");
+
+    return 0;
+}
