@@ -1,0 +1,111 @@
+//Bankers Algorithm 
+
+ #include <stdio.h>
+#include <stdbool.h>
+
+int main() {
+    int P = 5; 
+    int R = 3; 
+    
+    int allocation[5][3] = {
+        {0, 1, 0},
+        {2, 0, 0},
+        {3, 0, 2},
+        {2, 1, 1},
+        {0, 0, 2}
+    };
+    
+    int max[5][3] = {
+        {7, 5, 3},
+        {3, 2, 2},
+        {9, 0, 2},
+        {2, 2, 2},
+        {4, 3, 3}
+    };
+    
+    int available[3] = {3, 3, 2}; 
+    
+    
+    int need[5][3];
+    for (int i = 0; i < P; i++) {
+        for (int j = 0; j < R; j++) {
+            need[i][j] = max[i][j] - allocation[i][j];
+        }
+    }
+    
+printf("\nProcess\tAllocation\tMax\t\tNeed\n");
+    for (int i = 0; i < P; i++) {
+        printf("P%d\t", i);
+        for (int j = 0; j < R; j++) {
+            printf("%d ", allocation[i][j]);
+        }
+        printf("\t\t");
+        for (int j = 0; j < R; j++) {
+            printf("%d ", max[i][j]);
+        }
+        printf("\t\t");
+        for (int j = 0; j < R; j++) {
+            printf("%d ", need[i][j]);
+        }
+        printf("\n");
+    }
+
+    
+    printf("\nAvailable resources: ");
+    for (int i = 0; i < R; i++) {
+        printf("%d ", available[i]);
+    }
+    printf("\n");
+    int finish[5] = {0};  
+    int safeSeq[5];       
+    int work[3];          
+    
+    for (int i = 0; i < R; i++) {
+        work[i] = available[i];
+    }
+    
+    int count = 0; 
+    
+    while (count < P) {
+        bool found = false;
+        
+        for (int p = 0; p < P; p++) {
+            if (finish[p] == 0) {
+                int j;
+               
+                for (j = 0; j < R; j++) {
+                    if (need[p][j] > work[j]) {
+                        break;
+                    }
+                }
+                
+                if (j == R) {
+                    
+                    for (int k = 0; k < R; k++) {
+                        work[k] += allocation[p][k];
+                    }
+                    
+                    safeSeq[count++] = p; 
+                    finish[p] = 1;
+                    found = true;
+                }
+            }
+        }
+        
+        if (found == false) {
+            printf("System is NOT in a safe state.\n");
+            return 0;
+        }
+    }
+    
+    printf("System is in a SAFE state.\nSafe sequence: ");
+    for (int i = 0; i < P; i++) {
+        printf("P%d ", safeSeq[i]);
+    }
+    printf("\n");
+    
+    return 0;
+}
+
+
+
