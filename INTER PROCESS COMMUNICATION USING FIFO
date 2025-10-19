@@ -1,0 +1,87 @@
+process 1.
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+
+#define fifo1 "fifo1"
+#define fifo2 "fifo2"
+
+int i=0;
+char buffer[1024],filename[20];
+char ch;
+int fd1,fd2;
+
+int main(){
+
+
+ch=getchar();
+while(ch!='#')
+{
+buffer[i]=ch;
+i++;
+ch=getchar();
+}
+buffer[i]='#';
+mkfifo("fifo1",0666);
+fd1=open("fifo1",O_WRONLY);
+write(fd1,buffer,sizeof(buffer));
+close(fd1);
+
+fd2=open("fifo2",O_RDONLY);
+read(fd2,filename,sizeof(filename));
+FILE*fp=fopen(filename,"r");
+close(fd2);
+return 0;
+}
+
+
+process 2
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+
+#define fifo1 "fifo1"
+#define fifo2 "fifo2"
+
+int i=0,lines=0,words=0,character=0;
+char buffer[1024],filename[20];
+char ch;
+int fd1,fd2;
+
+int main(){
+fd1=open(fifo1,O_RDONLY);
+read(fd1,buffer,sizeof(buffer));
+close(fd1);
+while(buffer[i]!='#')
+{
+if(buffer[i]=='\n'){
+lines++;
+}
+else if(buffer[i]==' '){
+words++;    
+}
+else{
+character++;
+}
+i++;
+}
+lines++;
+words++;
+FILE*fp=fopen("abc.txt","w");
+fprintf(fp,"char count=%d,words count=%d,lines count=%d",character,words,lines);
+printf("character=%d,words =%d,lines=%d",character,words,lines);
+fclose(fp);
+mkfifo("fifo2",0666);
+fd2=open("fifo2",O_WRONLY);
+write(fd2,"abc.txt",7);
+close(fd2);
+
+}
