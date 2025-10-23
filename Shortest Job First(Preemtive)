@@ -46,3 +46,21 @@ int main() {
     printf("\nAverage Turnaround Time = %.2f\n", avgTAT / n);
 return 0;
 }
+
+OUTPUT:
+Enter number of processes: 5
+Enter Arrival Time and Burst Time for P1: 0 3
+Enter Arrival Time and Burst Time for P2: 2 6
+Enter Arrival Time and Burst Time for P3: 4 4
+Enter Arrival Time and Burst Time for P4: 6 5
+Enter Arrival Time and Burst Time for P5: 8 2
+
+PID     AT      BT      WT      TAT
+1       0       3       0       3
+2       2       6       7       13
+3       4       4       0       4
+4       6       5       9       14
+5       8       2       0       2
+
+Average Waiting Time = 3.20
+Average Turnaround Time = 7.20
